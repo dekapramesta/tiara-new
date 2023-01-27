@@ -9,6 +9,7 @@ use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 
+
 class ShopController extends Controller
 {
     //
@@ -79,7 +80,7 @@ class ShopController extends Controller
         # code...
         $pesanan_diambil = date("Y-m-d H:i:s", strtotime($request->pesanan_diambil));
         // dd($request);
-        Pesanan::create([
+        $data = [
             'ticket' => 'TB' . rand(1000, 9999),
             'nama' => $request->nama,
             'alamat' => $request->alamat,
@@ -88,14 +89,27 @@ class ShopController extends Controller
             'pesanan_diambil' => $pesanan_diambil,
             'status_admin' => 0,
 
-        ]);
+        ];
+        Pesanan::create($data);
+        $result =  new PdfController();
         $request->session()->forget('cart');
-        return redirect()->route('user');
+        return  $result->generatePDF($data);
     }
     public function bayar()
     {
         # code...
         return view('user.pay');
+    }
+
+    public function SearchCode(Request $request)
+    {
+        # code...
+        $data = Pesanan::where('ticket', $request->kode)->first();
+        if (is_null($data)) {
+            return Response()->json(['data' => 'Kosong'], 404);
+        } else {
+            return Response()->json($data, 200);
+        }
     }
     public function cariKode(Request $request)
     {

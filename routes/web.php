@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MidtransController;
+use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -30,7 +31,9 @@ Route::get('/get-payment', [MidtransController::class, 'index'])->name('payment'
 Route::get('/bayar', [ShopController::class, 'bayar'])->name('bayar');
 Route::post('/bayar-midtrans', [ShopController::class, 'payment_post'])->name('bayar.midtrans');
 Route::post('/bayar', [ShopController::class, 'cariKode'])->name('bayar.kode');
+Route::post('/searchcode', [ShopController::class, 'SearchCode'])->name('cari.kode');
 Route::post('/checkout', [ShopController::class, 'Buying'])->name('buying');
+Route::get('/generate-pdf', [PdfController::class, 'generatePDF']);
 Route::get('Login', [LoginController::class, 'index'])->name('Login');
 Route::post('LoginExc', [LoginController::class, 'LoginAction'])->name('Login.action');
 Route::prefix('Admin')->group(function () {

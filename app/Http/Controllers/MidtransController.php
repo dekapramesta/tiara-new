@@ -42,7 +42,7 @@ class MidtransController extends Controller
         $data = json_decode($request->getContent());
         $signatureKey = hash('sha512', $data->order_id . $data->status_code . $data->gross_amount . 'SB-Mid-server-Ig6Wl9OM0qoOqbCASQLyloQ6');
         if ($signatureKey != $data->signature_key) {
-            return abort(404);
+            return response()->json(['Message' => "Gagal"], 404);
         }
         $order = Pesanan::where('order_id', $data->order_id)->first();
         $order->update(['status' => $data->transaction_status, 'status_code' => $data->status_code]);

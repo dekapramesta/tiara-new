@@ -25,12 +25,17 @@
                     <div class="card-body">
                         <div class="form-group">
                             <input type="text" id="kode_invoice" class="form-control">
+                            <input hidden type="text" id="ticket" class="form-control">
                         </div>
                         <div class="form-group" id="pay_place">
-                            <button onclick="cariInvoice()" class="btn btn-success w-100">Cari</button>
+                            <button onclick="CariKode()" class="btn btn-success w-100">Cari</button>
                         </div>
 
                     </div>
+                    <span id='table-place'>
+
+
+                    </span>
                 </div>
 
             </div>
@@ -43,6 +48,76 @@
 <script type="text/javascript">
     // For example trigger on button clicked, or any time you need
 
+    function CariKode() {
+        let id = $('#kode_invoice').val()
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "{{ route('cari.kode') }}",
+            data: {
+                kode: id
+            },
+            dataType: 'json',
+            success: function(res) {
+                Table()
+                let pesan = JSON.parse(res.pesanan)
+                let total = 0
+                pesan.map((dt) => {
+                    total += dt.harga * dt.jumlah
+                })
+                $('#nama').html(res.nama)
+                $('#total').html(total)
+                $('#ticket').val(res.ticket)
+                if (res.status === 'settlement') {
+                    $('#status').html("Lunas")
+                } else {
+                    $('#status').html("Belum Lunas")
+                    $('#aksi').html(
+                        `<button class='btn btn-primary'onclick='cariInvoice()'> Bayar </button>`
+                    )
+                }
+
+
+            },
+            statusCode: {
+                404: function(responseObject, textStatus, jqXHR) {
+                    $('#table-place').html('')
+                }
+            }
+        });
+    }
+
+    function Table() {
+        $('#table-place').html(`
+         <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Nama</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Aksi</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">#</th>
+                                    <td id="nama"></td>
+                                    <td id="total"></td>
+                                    <td id="status"></td>
+                                    <td id="aksi"></td>
+
+                                </tr>
+
+                            </tbody>
+                        </table>
+        `)
+    }
 
     function cariInvoice() {
         $.ajaxSetup({
@@ -54,7 +129,7 @@
             type: "POST",
             url: "{{ route('bayar.kode') }}",
             data: {
-                kode: $('#kode_invoice').val()
+                kode: $('#ticket').val()
             },
             dataType: 'json',
             success: function(res) {

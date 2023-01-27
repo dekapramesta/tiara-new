@@ -93,7 +93,7 @@
 
             </div>
             <div class="col-lg-12 col-md-12 d-flex mt-3">
-                <form class="w-100" action="{{ route('buying') }}" method="post" enctype="multipart/form-data">
+                <form class="w-100" id="submitbuy" method="post" enctype="multipart/form-data">
                     @csrf
 
                     <div class="mb-3">
@@ -130,6 +130,26 @@
     </div>
 </div>
 <script type="text/javascript">
+    document.getElementById('submitbuy').addEventListener('submit', function(e) {
+        e.preventDefault();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "{{ route('buying') }}",
+            data: $('#submitbuy').serialize(),
+            dataType: 'json',
+            success: function(res) {
+
+            }
+        });
+        $(document).ajaxStop(function() {
+            window.location.reload();
+        });
+    });
     $(function() {
         $('#datetimepicker1').datetimepicker();
     });
